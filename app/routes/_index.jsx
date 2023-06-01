@@ -9,6 +9,8 @@ export function meta() {
 }
 
 export async function loader({ context }) {
+  console.log("base")
+
   return await context.storefront.query(COLLECTIONS_QUERY);
 }
 
