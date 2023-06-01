@@ -1,9 +1,10 @@
 import { useLoaderData } from '@remix-run/react';
 import { json } from '@shopify/remix-oxygen';
-import { MediaFile } from '@shopify/hydrogen-react';
+import { MediaFile, Money, ShopPayButton } from '@shopify/hydrogen-react';
 import ProductOptions from '~/components/ProductOptions';
 
 export async function loader({ params, context, request }) {
+    const storeDomain = context.storefront.getShopifyDomain();
     const { handle } = params;
     const searchParams = new URL(request.url).searchParams;
     const selectedOptions = [];
@@ -31,10 +32,13 @@ export async function loader({ params, context, request }) {
     return json({
         product,
         selectedVariant,
+        storeDomain,
     });
+
 }
 export default function ProductHandle() {
-    const { product, selectedVariant } = useLoaderData();
+    const { product, selectedVariant, storeDomain } = useLoaderData();
+    const orderable = selectedVariant?.availableForSale || false;
 
     return (
         <section className="w-full gap-4 md:gap-8 grid px-6 md:px-8 lg:px-12">
@@ -56,7 +60,24 @@ export default function ProductHandle() {
                     <ProductOptions
                         options={product.options}
                         selectedVariant={selectedVariant}
-                    />                    <div
+                    />
+                    <Money
+                        withoutTrailingZeros
+                        data={selectedVariant.price}
+                        className="text-xl font-semibold mb-2"
+                    />
+                    {orderable && (
+                        <div className="space-y-2">
+                            <ShopPayButton
+                                storeDomain={storeDomain}
+                                variantIds={[selectedVariant?.id]}
+                                width={'400px'}
+                            />
+                            {/* TODO product form */}
+                        </div>
+                    )}
+
+                    <div
                         className="prose border-t border-gray-200 pt-6 text-black text-md"
                         dangerouslySetInnerHTML={{ __html: product.descriptionHtml }}
                     />
