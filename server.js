@@ -1,8 +1,8 @@
 // Virtual entry point for the app
 const path = require('path');
 const express = require('express');
-const {createRequestHandler} = require('@remix-run/express');
-const {createStorefrontClient} = require('@shopify/hydrogen');
+const { createRequestHandler } = require('@remix-run/express');
+const { createStorefrontClient } = require('@shopify/hydrogen');
 
 const app = express();
 const BUILD_DIR = path.join(process.cwd(), 'build');
@@ -21,12 +21,12 @@ const port =
 // Remix fingerprints its assets so we can cache forever.
 app.use(
   '/build',
-  express.static('public/build', {immutable: true, maxAge: '1y'}),
+  express.static('public/build', { immutable: true, maxAge: '1y' }),
 );
 
 // Everything else (like favicon.ico) is cached for an hour. You may want to be
 // more aggressive with this caching.
-app.use(express.static('public', {maxAge: '1h'}));
+app.use(express.static('public', { maxAge: '1h' }));
 
 app.all('*', (req, res, next) => {
   if (process.env.NODE_ENV === 'development') {
@@ -35,13 +35,13 @@ app.all('*', (req, res, next) => {
   /**
    * Create Hydrogen's Storefront client.
    */
-  const {storefront} = createStorefrontClient({
+  const { storefront } = createStorefrontClient({
     // buyerIp: getBuyerIp(request),
-    i18n: {language: 'EN', country: 'US'},
-    publicStorefrontToken: env.PUBLIC_STOREFRONT_API_TOKEN,
+    i18n: { language: 'EN', country: 'US' },
+    publicStorefrontToken: '3b580e70970c4528da70c98e097c2fa0',
     privateStorefrontToken: env.PRIVATE_STOREFRONT_API_TOKEN,
-    storeDomain: `https://${env.PUBLIC_STORE_DOMAIN}`,
-    storefrontApiVersion: env.PUBLIC_STOREFRONT_API_VERSION || '2023-01',
+    storeDomain: 'https://hydrogen-preview.myshopify.com',
+    storefrontApiVersion: '2023-04',
     storefrontId: env.PUBLIC_STOREFRONT_ID,
     // requestGroupId: req.headers.get('request-id'),
   });
@@ -53,7 +53,7 @@ app.all('*', (req, res, next) => {
   return createRequestHandler({
     build: require(BUILD_DIR),
     mode: process.env.NODE_ENV,
-    getLoadContext: () => ({storefront, env}),
+    getLoadContext: () => ({ storefront, env }),
   })(req, res, next);
 });
 
